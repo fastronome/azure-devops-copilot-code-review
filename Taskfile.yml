@@ -1,0 +1,21 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Build the Azure Pipelines task bundle (CopilotCodeReviewV1/index.js)
+    env:
+      NPM_CONFIG_CACHE: /tmp/azure-devops-copilot-code-review-npm-cache
+    cmds:
+      - npm --prefix CopilotCodeReviewV1 ci --no-audit --no-fund
+      - npm --prefix CopilotCodeReviewV1 run build
+
+  publish:
+    desc: Publish the Azure DevOps extension to Marketplace (requires TFX_PAT)
+    dotenv:
+      - .env
+    preconditions:
+      - sh: test -n "${TFX_PAT:-}"
+        msg: TFX_PAT environment variable is required
+    cmds:
+      - task: build
+      - tfx extension publish --manifest-globs vss-extension.json --token "$TFX_PAT" --no-prompt

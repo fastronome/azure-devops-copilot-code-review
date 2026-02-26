@@ -1,5 +1,5 @@
 {
-    "name": "ado-copilot-code-review",
+    "name": "fastronome-copilot-code-review",
     "version": "1.5.1",
     "description": "Azure DevOps extension for automated code reviews using GitHub Copilot",
     "scripts": {
@@ -10,7 +10,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/little-fort/ado-copilot-code-review.git"
+        "url": "https://github.com/fastronome/azure-devops-copilot-code-review.git"
     },
     "keywords": [
         "azure-devops",
@@ -19,6 +19,6 @@
         "pull-request",
         "ai"
     ],
-    "author": "LittleFortSoftware",
-    "license": "GPL-3.0"
+    "author": "Fastronome",
+    "license": "LGPL-3.0-only"
 }

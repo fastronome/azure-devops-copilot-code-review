@@ -38,7 +38,7 @@
     Writes the pull request changes to the specified file (on-prem example).
 
 .NOTES
-    Author: Little Fort Software
+    Author: Fastronome
     Date: December 2025
     Requires: PowerShell 5.1 or later
 #>

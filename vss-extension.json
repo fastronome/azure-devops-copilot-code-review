@@ -1,10 +1,10 @@
 {
     "$schema": "http://json.schemastore.org/vss-extension",
     "manifestVersion": 1,
-    "id": "ado-copilot-code-review",
-    "name": "Copilot Code Review",
+    "id": "fastronome-copilot-code-review",
+    "name": "Fastronome Copilot Code Review",
     "version": "1.5.1",
-    "publisher": "LittleFortSoftware",
+    "publisher": "Fastronome",
     "public": true,
     "targets": [
         {
@@ -29,22 +29,25 @@
     "content": {
         "details": {
             "path": "README.md"
+        },
+        "license": {
+            "path": "LICENSE"
         }
     },
     "links": {
         "repository": {
-            "uri": "https://github.com/little-fort/ado-copilot-code-review"
+            "uri": "https://github.com/fastronome/azure-devops-copilot-code-review"
         },
         "issues": {
-            "uri": "https://github.com/little-fort/ado-copilot-code-review/issues"
+            "uri": "https://github.com/fastronome/azure-devops-copilot-code-review/issues"
         },
         "support": {
-            "uri": "https://github.com/little-fort/ado-copilot-code-review/issues"
+            "uri": "https://github.com/fastronome/azure-devops-copilot-code-review/issues"
         }
     },
     "repository": {
         "type": "git",
-        "uri": "https://github.com/little-fort/ado-copilot-code-review"
+        "uri": "https://github.com/fastronome/azure-devops-copilot-code-review"
     },
     "branding": {
         "color": "rgb(0, 122, 204)",
@@ -57,7 +60,7 @@
     ],
     "contributions": [
         {
-            "id": "copilot-code-review-task",
+            "id": "fastronome-copilot-code-review-task",
             "type": "ms.vss-distributed-task.task",
             "targets": [
                 "ms.vss-distributed-task.tasks"

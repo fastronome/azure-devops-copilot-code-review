@@ -36,7 +36,7 @@
     Updates both the thread status and the comment content.
 
 .NOTES
-    Author: Little Fort Software
+    Author: Fastronome
     Date: February 2026
     Requires: PowerShell 5.1 or later
     

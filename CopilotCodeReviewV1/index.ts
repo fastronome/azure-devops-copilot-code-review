@@ -26,6 +26,133 @@ function isWindows(): boolean {
     return process.platform === 'win32';
 }
 
+type ReviewPromptSettings = {
+    reviewBugs: boolean;
+    reviewPerformance: boolean;
+    reviewBestPractices: boolean;
+    reviewWholeDiffAtOnce: boolean;
+    additionalPrompts: string[];
+};
+
+function parseAdditionalPrompts(input: string | undefined): string[] {
+    if (!input) {
+        return [];
+    }
+
+    return input
+        .split(/[\r\n,]+/)
+        .map(part => part.trim())
+        .filter(Boolean);
+}
+
+function buildReviewFocusLines(settings: ReviewPromptSettings): string[] {
+    const lines: string[] = [];
+
+    if (settings.reviewBugs) {
+        lines.push('- If there are any bugs, highlight them.');
+    }
+    if (settings.reviewPerformance) {
+        lines.push('- If there are major performance problems, highlight them.');
+    }
+    if (settings.reviewBestPractices) {
+        lines.push('- Provide details on missed use of best practices.');
+    }
+
+    for (const prompt of settings.additionalPrompts) {
+        lines.push(`- ${prompt}`);
+    }
+
+    if (lines.length === 0) {
+        lines.push('- Focus only on actionable issues and meaningful questions in the changed code.');
+    }
+
+    return lines;
+}
+
+function buildReviewBehaviorSection(settings: ReviewPromptSettings): string {
+    const focusLines = buildReviewFocusLines(settings).join('\n');
+
+    if (settings.reviewWholeDiffAtOnce) {
+        return `
+REFERENCE-STYLE REVIEW BEHAVIOR (OVERRIDES CONFLICTING GENERIC GUIDANCE ABOVE)
+
+Apply the following review focus:
+${focusLines}
+- Do not highlight minor issues or nitpicks.
+- Only provide actionable improvements or clarifying questions.
+
+WHOLE-DIFF MODE IS ENABLED (reviewWholeDiffAtOnce = true)
+
+You must produce exactly one consolidated PR-level review comment (not multiple file-by-file comments) using Add-CopilotComment.ps1.
+Do not respond with NO_COMMENT only in this mode.
+Do not post inline comments in this mode unless a specific line anchor is absolutely necessary and the issue cannot be explained in the consolidated review.
+
+Start your response in markdown with this structure in this exact order:
+1. ## Summary of changes
+2. ## Feedback on files (markdown table)
+3. ## Detailed comments (only if there are actionable issues or questions)
+
+The file review table must include columns in this order:
+| File Name | Status | Comments |
+
+Use only these status labels in the table:
+- ✅ Passed
+- ❓ Questions
+- ❌ Not Passed
+
+If there are no actionable issues, still provide the summary and the file table, mark every file as ✅ Passed, and use "No comments" in the Comments column.
+
+Thread status logic for the consolidated comment:
+- If every file row is ✅ Passed, create the thread with -Status 'Closed'
+- If any file row is ❓ Questions or ❌ Not Passed, create the thread with -Status 'Active'
+
+Example posting command (general PR comment):
+.\\Add-CopilotComment.ps1 -Comment $comment -Status 'Closed'
+`;
+    }
+
+    return `
+REFERENCE-STYLE REVIEW BEHAVIOR (OVERRIDES CONFLICTING GENERIC GUIDANCE ABOVE)
+
+Apply the following review focus:
+${focusLines}
+- Do not highlight minor issues or nitpicks.
+- Only provide actionable improvements or clarifying questions.
+
+PER-FILE MODE IS ENABLED (reviewWholeDiffAtOnce = false)
+
+For each file or changed area you review:
+- If there are no actionable issues or questions, respond with NO_COMMENT only.
+- If you provide a comment, begin it with a status line in markdown using one of:
+  - **Status:** ✅ Passed
+  - **Status:** ❓ Questions
+  - **Status:** ❌ Not Passed
+- Use ✅ Passed only for positive feedback / no further action required.
+- Use ❓ Questions when clarification is required before deciding pass/fail.
+- Use ❌ Not Passed when code changes are required.
+
+Thread status logic for posted comments:
+- **Status:** ✅ Passed => create thread with -Status 'Closed'
+- **Status:** ❓ Questions or ❌ Not Passed => create thread with -Status 'Active'
+
+Prefer inline comments for file-specific issues:
+.\\Add-CopilotComment.ps1 -Comment $comment -Status 'Active' -FilePath '/src/App.cs' -StartLine 42 -EndLine 45
+
+General positive/pass comment example:
+.\\Add-CopilotComment.ps1 -Comment $comment -Status 'Closed'
+`;
+}
+
+function renderPromptTemplate(templateContent: string, settings: ReviewPromptSettings, customPromptText?: string): string {
+    let rendered = templateContent;
+
+    if (rendered.includes('%CUSTOMPROMPT%')) {
+        rendered = rendered.replace('%CUSTOMPROMPT%', customPromptText ?? '');
+    }
+
+    return `${rendered.trim()}\n\n${buildReviewBehaviorSection(settings).trim()}\n`;
+}
+
 async function run(): Promise<void> {
     try {
         // Check prerequisites first
@@ -147,6 +274,11 @@ async function run(): Promise<void> {
         let pullRequestId = tl.getInput('pullRequestId');
         const timeoutMinutes = parseInt(tl.getInput('timeout') || '15', 10);
         const model = tl.getInput('model');
+        const reviewBugs = tl.getBoolInput('reviewBugs', false);
+        const reviewPerformance = tl.getBoolInput('reviewPerformance', false);
+        const reviewBestPractices = tl.getBoolInput('reviewBestPractices', false);
+        const reviewWholeDiffAtOnce = tl.getBoolInput('reviewWholeDiffAtOnce', false);
+        const additionalPrompts = parseAdditionalPrompts(tl.getInput('additionalPrompts') || undefined);
         const promptFile = tl.getInput('promptFile');
         const prompt = tl.getInput('prompt');
         const promptRaw = tl.getInput('promptRaw');
@@ -163,7 +295,7 @@ async function run(): Promise<void> {
         }
 
         console.log('='.repeat(60));
-        console.log('Copilot Code Review Task');
+        console.log('Fastronome Copilot Code Review Task');
         console.log('='.repeat(60));
         console.log(`Collection URI: ${resolvedCollectionUri}`);
         console.log(`Project: ${project}`);
@@ -172,6 +304,13 @@ async function run(): Promise<void> {
         console.log(`Timeout: ${timeoutMinutes} minutes`);
         if (model) {
             console.log(`Model: ${model}`);
+        }
+        console.log(`Review bugs: ${reviewBugs}`);
+        console.log(`Review performance: ${reviewPerformance}`);
+        console.log(`Review best practices: ${reviewBestPractices}`);
+        console.log(`Review whole diff at once: ${reviewWholeDiffAtOnce}`);
+        if (additionalPrompts.length > 0) {
+            console.log(`Additional prompts: ${additionalPrompts.join(' | ')}`);
         }
         console.log('='.repeat(60));
 
@@ -183,9 +322,17 @@ async function run(): Promise<void> {
         process.env['PROJECT'] = project;
         process.env['REPOSITORY'] = repository;
         process.env['PRID'] = pullRequestId;
+        process.env['REVIEW_WHOLE_DIFF_AT_ONCE'] = reviewWholeDiffAtOnce ? 'true' : 'false';
 
         const scriptsDir = path.join(__dirname, 'scripts');
         const workingDirectory = tl.getVariable('System.DefaultWorkingDirectory') || process.cwd();
+        const reviewPromptSettings: ReviewPromptSettings = {
+            reviewBugs,
+            reviewPerformance,
+            reviewBestPractices,
+            reviewWholeDiffAtOnce,
+            additionalPrompts
+        };
 
         // Step 1: Install GitHub Copilot CLI if not present
         console.log('\n[Step 1/4] Checking GitHub Copilot CLI installation...');
@@ -312,7 +459,7 @@ async function run(): Promise<void> {
             // Use custom prompt template with placeholder replacement
             const customPromptTemplate = path.join(scriptsDir, 'prompt-custom.txt');
             const templateContent = fs.readFileSync(customPromptTemplate, 'utf8');
-            const mergedPrompt = templateContent.replace('%CUSTOMPROMPT%', customPromptText);
+            const mergedPrompt = renderPromptTemplate(templateContent, reviewPromptSettings, customPromptText);
             console.log('\nCUSTOM PROMPT:\n' + mergedPrompt + '\n\n');
 
             // Write merged prompt to a temp file in the working directory
@@ -320,9 +467,13 @@ async function run(): Promise<void> {
             fs.writeFileSync(promptFilePath, mergedPrompt, 'utf8');
             console.log('Custom prompt merged with instruction template.');
         } else if (!promptRaw && !isPromptFileRawSet) {
-            // Use default prompt file bundled with the task
-            promptFilePath = path.join(scriptsDir, 'prompt.txt');
-            console.log('Using default prompt.');
+            // Use default prompt template bundled with the task and append dynamic review behavior guidance
+            const defaultPromptTemplate = path.join(scriptsDir, 'prompt.txt');
+            const templateContent = fs.readFileSync(defaultPromptTemplate, 'utf8');
+            const mergedPrompt = renderPromptTemplate(templateContent, reviewPromptSettings);
+            promptFilePath = path.join(workingDirectory, '_copilot_prompt.txt');
+            fs.writeFileSync(promptFilePath, mergedPrompt, 'utf8');
+            console.log('Using default prompt with dynamic review behavior settings.');
         }
 
         // Copy the Add-AzureDevOpsPRComment.ps1 and Add-AzureDevOpsPRComment.ps1 script to the working directory
@@ -349,7 +500,7 @@ async function run(): Promise<void> {
         await runCopilotCli(promptFilePath, model, workingDirectory, timeoutMs);
 
         console.log('\n' + '='.repeat(60));
-        console.log('Copilot Code Review completed successfully!');
+        console.log('Fastronome Copilot Code Review completed successfully!');
         console.log('='.repeat(60));
 
         tl.setResult(tl.TaskResult.Succeeded, 'Copilot code review completed.');

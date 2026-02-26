@@ -37,7 +37,7 @@
     Creates an inline comment spanning lines 42-50 of the specified file.
 
 .NOTES
-    Author: Little Fort Software
+    Author: Fastronome
     Date: December 2025
     Requires: PowerShell 5.1 or later
     
@@ -73,7 +73,85 @@ param(
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-# Use the provided Status parameter (default: Active). The prompt should pass -Status when possible.
+function Get-InferredThreadStatus {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$CommentText
+    )
+
+    # Per-file reference-style status line
+    $statusLineMatch = [regex]::Match($CommentText, '(?im)^\s*(?:\*\*)?status(?:\*\*)?\s*:?\s*(?<status>✅\s*passed|❓\s*questions|❌\s*not\s*passed)\s*$')
+    if ($statusLineMatch.Success) {
+        $statusValue = $statusLineMatch.Groups['status'].Value.ToLowerInvariant()
+        if ($statusValue -like '*passed*' -and $statusValue -notlike '*not*') {
+            return 'Closed'
+        }
+        return 'Active'
+    }
+
+    # Whole-diff reference-style table: infer closed only when all rows are ✅ Passed.
+    $lines = $CommentText -split "`r?`n"
+    $inTable = $false
+    $statusColumnIndex = -1
+    $sawRecognizedStatus = $false
+
+    foreach ($line in $lines) {
+        $trimmed = $line.Trim()
+        if (-not $trimmed.StartsWith('|')) {
+            if ($inTable) { break }
+            continue
+        }
+
+        $cells = $trimmed.Split('|') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+        if ($cells.Count -eq 0) { continue }
+
+        if (-not $inTable) {
+            $normalized = $cells | ForEach-Object { $_.ToLowerInvariant() }
+            if ($normalized -contains 'file name' -and $normalized -contains 'status' -and $normalized -contains 'comments') {
+                $statusColumnIndex = [array]::IndexOf($normalized, 'status')
+                $inTable = $true
+            }
+            continue
+        }
+
+        # Markdown separator row
+        $isSeparator = $true
+        foreach ($cell in $cells) {
+            if ($cell -notmatch '^\:?\-{3,}\:?$') {
+                $isSeparator = $false
+                break
+            }
+        }
+        if ($isSeparator) { continue }
+
+        if ($statusColumnIndex -lt 0 -or $statusColumnIndex -ge $cells.Count) {
+            return 'Active'
+        }
+
+        $statusCell = ($cells[$statusColumnIndex] -replace '\*\*', '').Trim().ToLowerInvariant()
+        if ($statusCell -like '*not passed*' -or $statusCell -like '*questions*') {
+            return 'Active'
+        }
+        if ($statusCell -like '*passed*') {
+            $sawRecognizedStatus = $true
+            continue
+        }
+
+        return 'Active'
+    }
+
+    if ($sawRecognizedStatus) {
+        return 'Closed'
+    }
+
+    return 'Active'
+}
+
+if (-not $PSBoundParameters.ContainsKey('Status')) {
+    $Status = Get-InferredThreadStatus -CommentText $Comment
+    Write-Host "No -Status specified; inferred thread status: $Status" -ForegroundColor DarkGray
+}
+
 Write-Host "Posting comment with thread status: $Status" -ForegroundColor DarkGray
 
 # Build the base parameters

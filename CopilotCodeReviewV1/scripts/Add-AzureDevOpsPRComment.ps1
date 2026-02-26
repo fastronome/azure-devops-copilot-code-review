@@ -72,7 +72,7 @@
     Creates an inline comment spanning lines 42-50, anchored to iteration 3 of the PR.
 
 .NOTES
-    Author: Little Fort Software
+    Author: Fastronome
     Date: December 2025
     Requires: PowerShell 5.1 or later
     

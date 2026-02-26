@@ -1,4 +1,4 @@
-# Contributing to Copilot Code Review for Azure DevOps
+# Contributing to Fastronome Copilot Code Review for Azure DevOps
 
 Thank you for your interest in contributing to this project!
 
@@ -15,8 +15,8 @@ Thank you for your interest in contributing to this project!
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/little-fort/ado-copilot-code-review.git
-   cd ado-copilot-code-review
+   git clone https://github.com/fastronome/azure-devops-copilot-code-review.git
+   cd azure-devops-copilot-code-review
    ```
 
 2. Install dependencies:
@@ -62,10 +62,10 @@ Thank you for your interest in contributing to this project!
 ### Project Structure
 
 ```
-ado-copilot-code-review/
+azure-devops-copilot-code-review/
 ├── vss-extension.json          # Extension manifest
 ├── README.md                   # Documentation
-├── LICENSE                     # MIT License
+├── LICENSE                     # LGPLv3 License
 ├── CONTRIBUTING.md             # This file
 ├── .gitignore
 ├── images/
@@ -110,4 +110,4 @@ Please use GitHub Issues to report bugs or request features. Include:
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+By contributing, you agree that your contributions will be licensed under the GNU Lesser General Public License v3.0 (LGPLv3).

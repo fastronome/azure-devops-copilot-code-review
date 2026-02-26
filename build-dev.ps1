@@ -15,7 +15,7 @@
     Packages the dev extension without rebuilding (uses existing compiled files).
 
 .NOTES
-    Author: Little Fort Software
+    Author: Fastronome
     Date: December 2025
 #>
 

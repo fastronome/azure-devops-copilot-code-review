@@ -1,9 +1,11 @@
-# Copilot Code Review for Azure DevOps
+# Fastronome Copilot Code Review for Azure DevOps
 
-[![Azure DevOps Marketplace](https://img.shields.io/badge/Azure%20DevOps-Marketplace-blue)](https://marketplace.visualstudio.com/items?itemName=LittleFortSoftware.ado-copilot-code-review)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Azure DevOps Marketplace](https://img.shields.io/badge/Azure%20DevOps-Marketplace-blue)](https://marketplace.visualstudio.com/items?itemName=Fastronome.fastronome-copilot-code-review)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPLv3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
 Automated pull request code reviews powered by the official GitHub Copilot CLI. Get automated feedback on your PRs while leaving your code hosted in Azure DevOps repos.
+
+This repository is published and maintained by **Fastronome** and distributed under **LGPLv3**.
 
 ## Overview
 
@@ -30,7 +32,7 @@ This extension supports Windows and Linux Azure DevOps agents. Compatible with M
 
 ## Installation
 
-1. Install the extension from the [Azure DevOps Marketplace](https://marketplace.visualstudio.com/items?itemName=LittleFortSoftware.ado-copilot-code-review)
+1. Install the extension from the [Azure DevOps Marketplace](https://marketplace.visualstudio.com/items?itemName=Fastronome.fastronome-copilot-code-review)
 2. Navigate to your Azure DevOps organization settings
 3. Go to **Extensions** and verify the extension is installed
 
@@ -51,7 +53,7 @@ steps:
   fetchDepth: 0
 
 - task: CopilotCodeReview@1
-  displayName: 'Copilot Code Review'
+  displayName: 'Fastronome Copilot Code Review'
   inputs:
     githubPat: '$(GITHUB_PAT)'
     useSystemAccessToken: true
@@ -74,7 +76,7 @@ steps:
   fetchDepth: 0
 
 - task: CopilotCodeReview@1
-  displayName: 'Copilot Code Review'
+  displayName: 'Fastronome Copilot Code Review'
   inputs:
     githubPat: '$(GITHUB_PAT)'
     azureDevOpsPat: '$(AZURE_DEVOPS_PAT)'
@@ -92,7 +94,7 @@ You can customize the review prompt to focus on aspects tailored to your needs:
 
 ```yaml
 - task: CopilotCodeReview@1
-  displayName: 'Copilot Code Review'
+  displayName: 'Fastronome Copilot Code Review'
   inputs:
     githubPat: '$(GITHUB_PAT)'
     useSystemAccessToken: true
@@ -108,7 +110,7 @@ For longer custom prompts, create a .txt file in your repository and pass the fi
 
 ```yaml
 - task: CopilotCodeReview@1
-  displayName: 'Copilot Code Review'
+  displayName: 'Fastronome Copilot Code Review'
   inputs:
     githubPat: '$(GITHUB_PAT)'
     useSystemAccessToken: true
@@ -138,7 +140,7 @@ steps:
     fetchDepth: 0
 
   - task: CopilotCodeReview@1
-    displayName: 'Copilot Code Review'
+    displayName: 'Fastronome Copilot Code Review'
     inputs:
       githubPat: '$(GITHUB_PAT)'
       useSystemAccessToken: true
@@ -159,11 +161,44 @@ steps:
 | `pullRequestId` | No | `$(System.PullRequest.PullRequestId)` | PR ID (auto-detected in PR builds) |
 | `timeout` | No | `15` | Timeout in minutes |
 | `model` | No | - | Preferred Copilot model to use (see valid options below) |
+| `reviewBugs` | No | `true` | Include bug-focused checks in the generated review prompt |
+| `reviewPerformance` | No | `true` | Include performance-focused checks in the generated review prompt |
+| `reviewBestPractices` | No | `true` | Include best-practices checks in the generated review prompt |
+| `reviewWholeDiffAtOnce` | No | `false` | Instruct Copilot to create one consolidated PR review (summary + file table + details) |
+| `additionalPrompts` | No | - | Extra review directives (comma- and/or newline-separated) appended to the prompt |
 | `promptFile` | No | - | Path to custom prompt file |
 | `prompt` | No | - | Inline custom prompt (overrides `promptFile`) |
 | `promptFileRaw` | No | - | _(Advanced)_ Path to custom prompt file that will be passed as-is with no supportive direction. |
 | `promptRaw` | No | - | _(Advanced)_ Inline custom prompt that will be passed as-is with no supportive direction. |
 | `authors` | No | - | Comma-separated list of email addresses to filter reviews (see below) |
+
+### Review Modes and Comment Statuses
+
+The default prompt now adds reference-style review behavior similar to the `azure-devops-ai-code-review` task:
+
+- **Per-file mode** (`reviewWholeDiffAtOnce: false`, default): Copilot is instructed to return `NO_COMMENT` for clean files, or include a status line (`✅ Passed`, `❓ Questions`, `❌ Not Passed`) when posting a comment.
+- **Whole-diff mode** (`reviewWholeDiffAtOnce: true`): Copilot is instructed to post one consolidated PR-level comment with:
+  - `## Summary of changes`
+  - `## Feedback on files` (markdown table with `File Name | Status | Comments`)
+  - `## Detailed comments` (only when actionable items exist)
+- Thread status should be `Closed` only when all file rows are `✅ Passed`; otherwise `Active`.
+
+Example whole-diff configuration:
+
+```yaml
+- task: CopilotCodeReview@1
+  displayName: 'Fastronome Copilot Code Review'
+  inputs:
+    githubPat: '$(GITHUB_PAT)'
+    useSystemAccessToken: true
+    reviewWholeDiffAtOnce: true
+    reviewBugs: true
+    reviewPerformance: true
+    reviewBestPractices: true
+    additionalPrompts: |
+      Check error handling paths
+      Verify API contract assumptions
+```
 
 ### Copilot Models
 
@@ -195,7 +230,7 @@ Use the `authors` input to limit code reviews to PRs created by specific users. 
 
 ```yaml
 - task: CopilotCodeReview@1
-  displayName: 'Copilot Code Review'
+  displayName: 'Fastronome Copilot Code Review'
   inputs:
     githubPat: '$(GITHUB_PAT)'
     useSystemAccessToken: true
@@ -272,7 +307,7 @@ Alternatively, you can create the pipeline first and then configure the pipeline
 
 ## Default Review Focus Areas
 
-The default prompt instructs Copilot to focus on:
+The default prompt instructs Copilot to focus on configurable review categories and emits reference-style status labels / whole-diff summaries. By default it includes:
 
 - **Performance**: Identifying inefficient code patterns
 - **Best Practices**: Adherence to coding standards
@@ -285,8 +320,7 @@ The default prompt instructs Copilot to focus on:
 ## Limitations
 
 - **GitHub Copilot CLI**: On Windows, requires `winget` to be available. On Linux, requires `curl` and `bash` (standard on most systems). If using MS-hosted agents, these should be available by default.
-- **General Comments Only**: Posts general PR comments (file-level inline comments not yet supported)
-- **Context Window**: Very large PRs may exceed Copilot's context limits
+- **Large PR Context**: Very large PRs may still exceed Copilot's practical context limits, especially in whole-diff mode
 
 ## Troubleshooting
 
@@ -309,7 +343,7 @@ Verify that:
 
 ```yaml
 - task: CopilotCodeReview@1
-  displayName: 'Copilot Code Review'
+  displayName: 'Fastronome Copilot Code Review'
   inputs:
     githubPat: '$(GITHUB_PAT)'
     useSystemAccessToken: true
@@ -323,19 +357,21 @@ For large PRs, increase the `timeout` input value. The default is 15 minutes.
 
 ### No comments posted
 
-Check the pipeline logs for Copilot's analysis output and determine if the agent experienced connectivity issues when posting comments. Even if Copilot finds no issues, it should still post a single comment indicating the PR looks good when using the default prompt.
+Check the pipeline logs for Copilot's analysis output and determine if the agent experienced connectivity issues when posting comments. In per-file mode, Copilot may intentionally return `NO_COMMENT` for files with no actionable issues. In whole-diff mode, it should post a single consolidated PR review comment.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit issues or pull requests on [GitHub](https://github.com/little-fort/ado-copilot-code-review).
+Contributions are welcome! Please feel free to submit issues or pull requests on [GitHub](https://github.com/fastronome/azure-devops-copilot-code-review).
 
 ## License
 
-This project is licensed under GNU General Public License v3 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU Lesser General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+
+Fastronome maintains and distributes this fork under LGPLv3 while preserving upstream attribution.
 
 ## Support
 
-For issues and feature requests, please use the [GitHub Issues](https://github.com/little-fort/ado-copilot-code-review/issues) page.
+For issues and feature requests, please use the [GitHub Issues](https://github.com/fastronome/azure-devops-copilot-code-review/issues) page.
 
 ## Acknowledgments
 

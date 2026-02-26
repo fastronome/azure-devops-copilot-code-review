@@ -1,18 +1,18 @@
 {
     "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
-    "id": "5fe45e88-c466-4658-ad2f-f6735e8a601f",
+    "id": "60e8f81d-c1c9-4219-a52e-a88e5102e032",
     "name": "CopilotCodeReview",
-    "friendlyName": "Copilot Code Review",
+    "friendlyName": "Fastronome Copilot Code Review",
     "description": "Perform automated code reviews on pull requests using the official GitHub Copilot CLI",
-    "helpMarkDown": "[Learn more about this task](https://github.com/little-fort/ado-copilot-code-review)",
+    "helpMarkDown": "[Learn more about this task](https://github.com/fastronome/azure-devops-copilot-code-review)",
     "category": "Utility",
-    "author": "LittleFortSoftware",
+    "author": "Fastronome",
     "version": {
         "Major": 1,
         "Minor": 5,
         "Patch": 1
     },
-    "instanceNameFormat": "Copilot Code Review",
+    "instanceNameFormat": "Fastronome Copilot Code Review",
     "minimumAgentVersion": "2.182.1",
     "inputs": [
         {
@@ -92,6 +92,50 @@
             "required": false,
             "defaultValue": "",
             "helpMarkDown": "Optional. The Copilot model to use for the review (e.g., 'gpt-4', 'claude-sonnet'). If not specified, uses the default model."
+        },
+        {
+            "name": "reviewBugs",
+            "type": "boolean",
+            "label": "Check for bugs",
+            "required": false,
+            "defaultValue": true,
+            "helpMarkDown": "Enable bug-focused review guidance in the generated Copilot prompt. Default value is `true`."
+        },
+        {
+            "name": "reviewPerformance",
+            "type": "boolean",
+            "label": "Check for performance problems",
+            "required": false,
+            "defaultValue": true,
+            "helpMarkDown": "Enable performance-focused review guidance in the generated Copilot prompt. Default value is `true`."
+        },
+        {
+            "name": "reviewBestPractices",
+            "type": "boolean",
+            "label": "Check for missed best practices",
+            "required": false,
+            "defaultValue": true,
+            "helpMarkDown": "Enable best-practices review guidance in the generated Copilot prompt. Default value is `true`."
+        },
+        {
+            "name": "reviewWholeDiffAtOnce",
+            "type": "boolean",
+            "label": "Review whole diff at once",
+            "required": false,
+            "defaultValue": false,
+            "helpMarkDown": "When enabled, the prompt instructs Copilot to produce a single consolidated PR-level review with a summary and file status table, similar to the Fastronome AI Code Review task."
+        },
+        {
+            "name": "additionalPrompts",
+            "type": "multiLine",
+            "label": "Additional Prompts",
+            "required": false,
+            "defaultValue": "",
+            "helpMarkDown": "Optional extra review instructions. You can provide comma-separated and/or newline-separated directives that will be appended to the generated review behavior prompt.",
+            "properties": {
+                "rows": "6",
+                "maxLength": "5000"
+            }
         },
         {
             "name": "promptFile",

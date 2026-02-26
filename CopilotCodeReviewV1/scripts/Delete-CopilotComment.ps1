@@ -19,7 +19,7 @@
     Deletes comment #456 from thread #123.
 
 .NOTES
-    Author: Little Fort Software
+    Author: Fastronome
     Date: February 2026
     Requires: PowerShell 5.1 or later
     
