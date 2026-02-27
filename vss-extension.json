@@ -3,7 +3,7 @@
     "manifestVersion": 1,
     "id": "fastronome-copilot-code-review",
     "name": "Fastronome Copilot Code Review",
-    "version": "1.5.3",
+    "version": "1.5.4",
     "publisher": "Fastronome",
     "public": true,
     "targets": [

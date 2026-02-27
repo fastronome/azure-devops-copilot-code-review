@@ -1,6 +1,6 @@
 {
     "name": "fastronome-copilot-code-review-task",
-    "version": "1.5.3",
+    "version": "1.5.4",
     "description": "Azure DevOps pipeline task for automated code reviews using GitHub Copilot",
     "main": "index.js",
     "scripts": {
