@@ -8,8 +8,8 @@
     "category": "Utility",
     "author": "Fastronome",
     "version": {
-        "Major": 0,
-        "Minor": 3,
+        "Major": 1,
+        "Minor": 5,
         "Patch": 3
     },
     "instanceNameFormat": "Fastronome Copilot Code Review (Dev)",

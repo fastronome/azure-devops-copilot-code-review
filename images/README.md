@@ -1,19 +1,24 @@
-# Extension Icon
+# Extension Icons
 
 The Azure DevOps marketplace requires a PNG icon (minimum 128x128 pixels).
 
 ## Current Status
 
-A placeholder SVG (`extension-icon.svg`) has been created. Before publishing to the marketplace, you need to:
+Source logo is stored as `logo-fastronome.jpg`. Generated PNG variants are used for the extension manifests.
 
-1. Either convert the SVG to PNG:
-   - Use any image editor or online converter
-   - Export as 128x128 PNG (minimum) or larger
-   - Save as `extension-icon.png`
+Current generated files:
 
-2. Or replace with your own custom icon:
-   - Create a PNG image (minimum 128x128 pixels)
-   - Save as `extension-icon.png` in this folder
+- `logo-fastronome-128.png` - Marketplace manifest icon (used by `vss-extension*.json`)
+- `logo-fastronome-256.png` - Higher-resolution icon variant
+- `logo-fastronome.png` - Full-size PNG conversion of the source image
+
+If you replace the source logo, regenerate the PNG variants:
+
+```bash
+convert images/logo-fastronome.jpg -strip -resize 256x256 images/logo-fastronome-256.png
+convert images/logo-fastronome.jpg -strip -resize 128x128 images/logo-fastronome-128.png
+convert images/logo-fastronome.jpg -strip images/logo-fastronome.png
+```
 
 ## Recommended Icon Sizes
 

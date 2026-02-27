@@ -32,7 +32,7 @@ Thank you for your interest in contributing to this project!
 
 ### Building the Extension
 
-1. Ensure you have a valid PNG icon at `images/extension-icon.png` (minimum 128x128 pixels)
+1. Ensure you have a valid PNG icon at `images/logo-fastronome-128.png` (minimum 128x128 pixels)
 
 2. From the root directory, package the extension:
    ```bash
@@ -69,7 +69,7 @@ azure-devops-copilot-code-review/
 ├── CONTRIBUTING.md             # This file
 ├── .gitignore
 ├── images/
-│   └── extension-icon.png      # Extension icon (128x128+)
+│   └── logo-fastronome-128.png # Extension icon used by manifests
 └── CopilotCodeReviewV1/
     ├── task.json               # Task definition
     ├── index.ts                # Main task logic

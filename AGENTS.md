@@ -12,6 +12,29 @@ bd close <id>         # Complete work
 bd sync               # Sync with git
 ```
 
+## Version Bumping
+
+When releasing, keep the product/task versions aligned unless there is an explicit reason not to.
+
+Update all of these together:
+
+- `package.json` (`version`)
+- `vss-extension.json` (`version`)
+- `vss-extension.dev.json` (`version`)
+- `CopilotCodeReviewV1/package.json` (`version`)
+- `CopilotCodeReviewV1/package-lock.json` (top-level `version` and `packages[""].version`)
+- `CopilotCodeReviewV1/task.json` (`version.Major/Minor/Patch`)
+- `CopilotCodeReviewDevV1/task.json` (`version.Major/Minor/Patch`)
+
+Recommended checks after bumping:
+
+```bash
+rg -n '"version"|Major|Minor|Patch' \
+  package.json vss-extension.json vss-extension.dev.json \
+  CopilotCodeReviewV1/package.json CopilotCodeReviewV1/package-lock.json \
+  CopilotCodeReviewV1/task.json CopilotCodeReviewDevV1/task.json
+```
+
 ## Landing the Plane (Session Completion)
 
 **When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.

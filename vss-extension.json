@@ -3,7 +3,7 @@
     "manifestVersion": 1,
     "id": "fastronome-copilot-code-review",
     "name": "Fastronome Copilot Code Review",
-    "version": "1.5.1",
+    "version": "1.5.3",
     "publisher": "Fastronome",
     "public": true,
     "targets": [
@@ -24,7 +24,7 @@
         "github copilot"
     ],
     "icons": {
-        "default": "images/extension-icon.png"
+        "default": "images/logo-fastronome-128.png"
     },
     "content": {
         "details": {

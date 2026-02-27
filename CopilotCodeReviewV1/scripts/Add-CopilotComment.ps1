@@ -80,7 +80,7 @@ function Get-InferredThreadStatus {
     )
 
     # Per-file reference-style status line
-    $statusLineMatch = [regex]::Match($CommentText, '(?im)^\s*(?:\*\*)?status(?:\*\*)?\s*:?\s*(?<status>✅\s*passed|❓\s*questions|❌\s*not\s*passed)\s*$')
+    $statusLineMatch = [regex]::Match($CommentText, '(?im)^\s*(?:\*\*)?status(?:\*\*)?\s*:?\s*(?<status>(?:✅\s*)?passed|(?:❓\s*)?questions|(?:❌\s*)?not\s*passed)\s*$')
     if ($statusLineMatch.Success) {
         $statusValue = $statusLineMatch.Groups['status'].Value.ToLowerInvariant()
         if ($statusValue -like '*passed*' -and $statusValue -notlike '*not*') {
@@ -145,6 +145,11 @@ function Get-InferredThreadStatus {
     }
 
     return 'Active'
+}
+
+if (($env:REVIEW_WHOLE_DIFF_AT_ONCE -ne 'true') -and $Comment.Trim() -match '^(?i:NO_COMMENT)$') {
+    Write-Host "Skipping comment post for per-file NO_COMMENT response." -ForegroundColor DarkGray
+    return
 }
 
 if (-not $PSBoundParameters.ContainsKey('Status')) {

@@ -123,6 +123,7 @@ PER-FILE MODE IS ENABLED (reviewWholeDiffAtOnce = false)
 
 For each file or changed area you review:
 - If there are no actionable issues or questions, respond with NO_COMMENT only.
+- If you respond with NO_COMMENT, do not call Add-CopilotComment.ps1 for that file.
 - If you provide a comment, begin it with a status line in markdown using one of:
   - **Status:** ✅ Passed
   - **Status:** ❓ Questions
@@ -134,6 +135,7 @@ For each file or changed area you review:
 Thread status logic for posted comments:
 - **Status:** ✅ Passed => create thread with -Status 'Closed'
 - **Status:** ❓ Questions or ❌ Not Passed => create thread with -Status 'Active'
+- Always include one of the three statuses above when posting a per-file comment (do not omit the status line).
 
 Prefer inline comments for file-specific issues:
 .\\Add-CopilotComment.ps1 -Comment $comment -Status 'Active' -FilePath '/src/App.cs' -StartLine 42 -EndLine 45
