@@ -94,6 +94,22 @@ Start your response in markdown with this structure in this exact order:
 
 The file review table must include columns in this order:
 | File Name | Status | Comments |
+| --- | --- | --- |
+
+Example:
+
+## Summary of changes
+...
+
+## Feedback on files
+| File Name | Status | Comments |
+| --- | --- | --- |
+| file1.cs | ✅ Passed | No comments |
+| file2.js | ❓ Questions | - Is this null value expected from the API contract?<br>- Please confirm whether retries are handled upstream |
+| file3.py | ❌ Not Passed | - Validate user input before constructing the query |
+| styles.css | ✅ Passed | No comments |
+
+## Detailed comments
 
 Use only these status labels in the table:
 - ✅ Passed
